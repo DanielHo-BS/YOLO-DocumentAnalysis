@@ -1,0 +1,34 @@
+python test.py --weights yolov7_pdf_detect_v0.01.pt --data pdf_dataset.yaml --task val --project runs/test/v0.01_val
+python test.py --weights yolov7_pdf_detect_v0.02(boundingbox_ratio).pt --data pdf_dataset.yaml --task val --project runs/test/v0.02_val
+python test.py --weights yolov7_pdf_detect_v0.01.pt --data pdf_dataset.yaml --task test --project runs/test/v0.01_test && python test.py --weights yolov7_pdf_detect_v0.02(boundingbox_ratio).pt --data pdf_dataset.yaml --task test --project runs/test/v0.02_test
+
+python test.py --weights yolov7_pdf_detect_v0.01.pt --data pdf_dataset.yaml --task val --project runs/test/v0.01_val_2 --v5-metric && python test.py --weights yolov7_pdf_detect_v0.02(boundingbox_ratio).pt --data pdf_dataset.yaml --task val --project runs/test/v0.02_val_2 --v5-metric
+
+python test.py --weights yolov7_pdf_detect_v0.02.pt --data pdf_dataset.yaml --task val --project runs/test/v0.02_val --v5-metric
+
+python test.py --weights yolov7_pdf_detect_v0.03.pt --data pdf_dataset.yaml --task val --project runs/test/v0.03_val --v5-metric
+python test.py --weights yolov7_pdf_detect_v0.04.pt --data pdf_dataset.yaml --task val --project runs/test/v0.04_val --v5-metric
+python test.py --weights 1125.pt --data pdf_dataset.yaml --task val --project runs/test/v0.04_val --v5-metric
+python test.py --weights 1128.pt --data pdf_dataset.yaml --task val --project runs/test/v0.04_val --v5-metric
+
+python test.py --weights 1129_PRB.pt --data pdf_dataset.yaml --task val --project runs/test/1129_PRB_val --v5-metric
+
+python test.py --weights 1130.pt --data pdf_dataset.yaml --task val --project runs/test/1130_val --v5-metric
+python test.py --weights 1130_PRB.pt --data pdf_dataset.yaml --task val --project runs/test/1130_PRB_val --v5-metric
+python test.py --weights 1207.pt --data pdf_dataset.yaml --task val --project runs/test/1207_val --v5-metric
+
+python test.py --weights 1214.pt --data pdf_dataset.yaml --task val --project runs/test/1214_val --v5-metric
+python test.py --weights 0.04_finetune_11.pt --data pdf_dataset.yaml --task val --project runs/test/1214_val --v5-metric
+
+python test.py --weights 1223.pt --data pdf_dataset.yaml --task val --project runs/test/1223_val --v5-metric
+python test.py --weights yolov7_pdf_detect_v0.05.pt --data pdf_dataset.yaml --task val --project runs/test/v0.04_val --v5-metric
+
+python test.py --weights CBAM.pt --data pdf_dataset.yaml --task val --project runs/test/CBAM_val --v5-metric
+
+python test.py --weights 0104_CBAM_neck.pt --data pdf_dataset.yaml --task val --project runs/test/CBAM_val --v5-metric
+
+python test.py --weights 0106_CBAM_backbone.pt --data pdf_dataset.yaml --task val --project runs/test/0106_CBAM_backbone --v5-metric
+python test.py --weights 0106_CBAM_neck.pt --data pdf_dataset.yaml --task val --project runs/test/0106_CBAM_neck --v5-metric
+
+python test.py --weights 0110_CBAM_backbone.pt --data pdf_dataset.yaml --task val --project runs/test/0110_CBAM_backbone --v5-metric
+python test.py --weights 0110_CBAM_neck.pt --data pdf_dataset.yaml --task val --project runs/test/0110_CBAM_neck --v5-metric

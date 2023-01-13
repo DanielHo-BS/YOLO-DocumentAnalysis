@@ -1,0 +1,9 @@
+train: ../datasets/hand_craft_v10/images/train
+val: ../datasets/hand_craft_v10/images/val
+test: ../datasets/hand_craft_v10/images/test
+
+# number of classes
+nc: 5
+
+# class names
+names: [ 'text', 'form', 'image', 'header', 'footer' ]
