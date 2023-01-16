@@ -341,7 +341,7 @@ def clip_coords(boxes, img_shape):
     boxes[:, 3].clamp_(0, img_shape[0])  # y2
 
 
-def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-7):
+def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU=False, EIoU=False, eps=1e-7):
     # Returns the IoU of box1 to box2. box1 is 4, box2 is nx4
     box2 = box2.T
 
@@ -366,7 +366,7 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=
 
     iou = inter / union
 
-    if GIoU or DIoU or CIoU:
+    if GIoU or DIoU or CIoU or WIoU or EIoU:
         cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
         ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
         if CIoU or DIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
@@ -375,14 +375,35 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=
                     (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
             if DIoU:
                 return iou - rho2 / c2  # DIoU
+            
             elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
                 v = (4 / math.pi ** 2) * torch.pow(torch.atan(w2 / (h2 + eps)) - torch.atan(w1 / (h1 + eps)), 2)
                 with torch.no_grad():
                     alpha = v / (v - iou + (1 + eps))
                 return iou - (rho2 / c2 + v * alpha)  # CIoU
-        else:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
+
+        elif GIoU:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
             c_area = cw * ch + eps  # convex area
             return iou - (c_area - union) / c_area  # GIoU
+        
+        elif WIoU:  # 0113  https://arxiv.org/abs/2110.13389
+            constant = 3.53 # 論文中常數設置為12.8
+            c1x, c1y = (b1_x1 + b1_x2) / 2, (b1_y1 + b1_y2) / 2 
+            c2x, c2y = (b2_x1 + b2_x2) / 2, (b2_y1 + b2_y2) / 2
+            ws, hs = c1x - c2x, c1y - c2y
+            center_distance = ws ** 2 + hs ** 2 + eps 
+            wh_distance = ((w1 - w2) ** 2 + (h1 -h2) ** 2) / 4
+            wasserstein_2 = center_distance + wh_distance
+            normalized_wasserstein = torch.exp(-torch.sqrt(wasserstein_2) / constant)
+            return 1 - normalized_wasserstein
+
+        else: # 0116 EIoU https://arxiv.org/abs/2101.08158
+            w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
+            h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
+            cw2=torch.pow(cw , 2)+eps
+            ch2=torch.pow(ch , 2)+eps
+            return iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
+
     else:
         return iou  # IoU
 

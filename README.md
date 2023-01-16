@@ -69,6 +69,28 @@ python train.py --workers 1 --device 0 --batch-size 8 --data data/pdf_dataset.ya
 # --name: save to project/name
 ```
 
+### Loss
+
+```test
+IoU: inter / union
+GIoU: iou - (c_area - union) / c_area
+DIoU: iou - rho2 / c2 
+CIoU: iou - (rho2 / c2 + v * alpha) 
+WIoU: 1 - normalized_wasserstein
+EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
+```
+
+#### Add new loss
+
+1. Add new loss to ``general.py``.
+2. Change loss of **bbox_iou()** from ``loss.py``.
+
+    ```python
+    iou = bbox_iou(pbox.T, selected_tbox, x1y1x2y2=False, CIoU=True)  # iou(prediction, target) 預設使用CIoU 方式計算
+    ```
+
 ## **Rerence**
 
 [Official YOLOv7](https://github.com/WongKinYiu/yolov7)
+
+[Yoloair](https://github.com/iscyy/yoloair)
