@@ -369,18 +369,33 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU
     if GIoU or DIoU or CIoU or WIoU or EIoU:
         cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
         ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
-        if CIoU or DIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
+        if CIoU or DIoU or EIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
             c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
             rho2 = ((b2_x1 + b2_x2 - b1_x1 - b1_x2) ** 2 +
                     (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
             if DIoU:
                 return iou - rho2 / c2  # DIoU
-            
+
             elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
                 v = (4 / math.pi ** 2) * torch.pow(torch.atan(w2 / (h2 + eps)) - torch.atan(w1 / (h1 + eps)), 2)
                 with torch.no_grad():
                     alpha = v / (v - iou + (1 + eps))
+                
+                if EIoU:  # 0124 CIoU + EIoU
+                    w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
+                    h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
+                    cw2=torch.pow(cw , 2)+eps
+                    ch2=torch.pow(ch , 2)+eps
+                    return iou-((rho2 / c2 + w_dis / cw2 + h_dis / ch2) + (rho2 / c2 + v * alpha)) / 2
+
                 return iou - (rho2 / c2 + v * alpha)  # CIoU
+            
+            else: # 0116 EIoU https://arxiv.org/abs/2101.08158
+                w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
+                h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
+                cw2=torch.pow(cw , 2)+eps
+                ch2=torch.pow(ch , 2)+eps
+                return iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
 
         elif GIoU:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
             c_area = cw * ch + eps  # convex area
@@ -396,13 +411,6 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU
             wasserstein_2 = center_distance + wh_distance
             normalized_wasserstein = torch.exp(-torch.sqrt(wasserstein_2) / constant)
             return 1 - normalized_wasserstein
-
-        else: # 0116 EIoU https://arxiv.org/abs/2101.08158
-            w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
-            h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
-            cw2=torch.pow(cw , 2)+eps
-            ch2=torch.pow(ch , 2)+eps
-            return iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
 
     else:
         return iou  # IoU
