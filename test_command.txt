@@ -32,3 +32,9 @@ python test.py --weights 0106_CBAM_neck.pt --data pdf_dataset.yaml --task val --
 
 python test.py --weights 0110_CBAM_backbone.pt --data pdf_dataset.yaml --task val --project runs/test/0110_CBAM_backbone --v5-metric
 python test.py --weights 0110_CBAM_neck.pt --data pdf_dataset.yaml --task val --project runs/test/0110_CBAM_neck --v5-metric
+
+python test.py --weights 0124_CIoU_EIoU.pt --data pdf_dataset.yaml --task val --project runs/test/0124 --v5-metric
+python test.py --weights 0124_CIoU_EIoU.pt --data pdf_dataset.yaml --task test --project runs/test/0124 --v5-metric
+
+python test.py --weights 0130_EIoU.pt --data pdf_dataset.yaml --task val --project runs/test/0130 --v5-metric
+python test.py --weights 0130_EIoU.pt --data pdf_dataset.yaml --task test --project runs/test/0130 --v5-metric

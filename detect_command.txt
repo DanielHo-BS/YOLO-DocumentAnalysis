@@ -84,3 +84,8 @@ python detect.py --weights 0110_CBAM_neck.pt --source C:\Users\m1100\Desktop\dev
 python detect.py --weights 0110_CBAM_neck.pt --source C:\Users\m1100\Desktop\dev\week73\credit_report --device 0 --project runs/0110_CBAM_neck_credit_report
 
 python detect.py --weights 0110_CBAM_neck.pt --source C:\Users\m1100\Desktop\dev\week73\credit_report  --device 0 --project runs/0110_CBAM_neck_credit_report
+
+python detect.py --weights 0124_CIoU_EIoU.pt --source ../datasets/dev/  --device 0 --project runs/0124
+
+python detect.py --weights 0130_EIoU.pt --source ../datasets/dev/assets  --device 0 --project runs/detect/0130
+python detect.py --weights 0130_EIoU.pt --source ../datasets/dev/credit_repor  --device 0 --project runs/detect/0130
