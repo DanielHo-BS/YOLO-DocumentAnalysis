@@ -13,5 +13,6 @@ python train.py --workers 1 --device 0 --batch-size 8 --data data/pdf_dataset.ya
 python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0117_CIoU_EIoU
 python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./runs/0118/yolov7_0118/weights/best.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0124
 
-
 python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0130_EIoU
+
+python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0206_DocLayNet_CIoU

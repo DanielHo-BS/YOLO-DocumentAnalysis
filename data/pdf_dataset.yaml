@@ -1,6 +1,7 @@
 train: ../datasets/hand_craft_v10/images/train
 val: ../datasets/hand_craft_v10/images/val
 test: ../datasets/hand_craft_v10/images/test
+# If add new data, need to remove the cache from labels/
 
 # number of classes
 nc: 5
