@@ -15,4 +15,10 @@ python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cf
 
 python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0130_EIoU
 
-python train.py --device 0 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0206_DocLayNet_CIoU
+python train.py --device 0,1 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0206_DocLayNet_CIoU
+
+python train.py --device 0,1 --batch-size 8 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0208_DocLayNet_CIoU
+
+python train.py --device 0,1 --batch-size 16 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0213_DocLayNet_EIoU
+
+python train.py --device 0,1 --batch-size 16 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0215_DocLayNet_ECIoU

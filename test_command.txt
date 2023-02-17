@@ -38,3 +38,5 @@ python test.py --weights 0124_CIoU_EIoU.pt --data pdf_dataset.yaml --task test -
 
 python test.py --weights 0130_EIoU.pt --data pdf_dataset.yaml --task val --project runs/test/0130 --v5-metric
 python test.py --weights 0130_EIoU.pt --data pdf_dataset.yaml --task test --project runs/test/0130 --v5-metric
+
+python test.py --weights 0212_best.pt --data pdf_dataset.yaml --task test --project runs/test/0213 --v5-metric
