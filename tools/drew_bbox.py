@@ -34,9 +34,9 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
             
     #cv2.imshow('mask',image)
     if saveFlag:
-        os.makedirs('./out',exist_ok = True)
-        #cv2.imwrite('./out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.png', image)
-        cv2.imencode('.jpg', image)[1].tofile('./out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.png') #中文
+        os.makedirs('./runs/out',exist_ok = True)
+        cv2.imwrite('./runs/out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.jpg', image)
+        cv2.imencode('.jpg', image)[1].tofile('./runs/out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.jpg') #中文
     return image
 
 def main(imageFolder,labelFolder,fileName = None):
@@ -60,8 +60,8 @@ def main(imageFolder,labelFolder,fileName = None):
                     visualize(imageFile,labelFile,True) #給True儲存
 
 if __name__ in '__main__':
-    imageFolder = "test_yolo_format/image/"
-    labelFolder = "test_yolo_format/label/"
+    imageFolder = "../datasets/old/hand_craft_v10/images/val/"
+    labelFolder = "../datasets/old/hand_craft_v10/labels/val/"
 
     #main(imageFolder,labelFolder,'temp')
     main(imageFolder,labelFolder)
