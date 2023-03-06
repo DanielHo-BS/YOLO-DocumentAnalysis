@@ -89,3 +89,10 @@ python detect.py --weights 0124_CIoU_EIoU.pt --source ../datasets/dev/  --device
 
 python detect.py --weights 0130_EIoU.pt --source ../datasets/dev/assets  --device 0 --project runs/detect/0130
 python detect.py --weights 0130_EIoU.pt --source ../datasets/dev/credit_repor  --device 0 --project runs/detect/0130
+
+python detect.py --weights 0212_best_DocLayNet_CIoU_5000.pt --source ../datasets/hand_craft_v10/images/val  --device 0 --project runs/detect/0213
+
+python detect.py --weights yolov7_pdf_detect_v0.05.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/v005 --save-txt
+
+python detect.py --weights 0223_best_DocLayNet_CIoU_50000.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0223
+python detect.py --weights 0223_best_DocLayNet_CIoU_50000.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0223 --save_txt
