@@ -341,7 +341,7 @@ def clip_coords(boxes, img_shape):
     boxes[:, 3].clamp_(0, img_shape[0])  # y2
 
 
-def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU=False, EIoU=False, FEIoU=False, eps=1e-7):
+def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU=False, EIoU=False, Focal=False, eps=1e-7, alpha=1, gamma=0.5):
     # Returns the IoU of box1 to box2. box1 is 4, box2 is nx4
     box2 = box2.T
 
@@ -366,10 +366,10 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU
 
     iou = inter / union
 
-    if GIoU or DIoU or CIoU or WIoU or EIoU or FEIoU:
+    if GIoU or DIoU or CIoU or WIoU or EIoU:
         cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
         ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
-        if CIoU or DIoU or EIoU or FEIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
+        if CIoU or DIoU or EIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
             c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
             rho2 = ((b2_x1 + b2_x2 - b1_x1 - b1_x2) ** 2 +
                     (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
@@ -379,31 +379,26 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU
             elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
                 v = (4 / math.pi ** 2) * torch.pow(torch.atan(w2 / (h2 + eps)) - torch.atan(w1 / (h1 + eps)), 2)
                 with torch.no_grad():
-                    alpha = v / (v - iou + (1 + eps))
+                    alpha_ciou = v / (v - iou + (1 + eps))
                 
                 if EIoU:  # 0124 CIoU + EIoU
-                    w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
-                    h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
+                    rho_w2=torch.pow(((b2_x2 - b2_x1) - (b1_x2 - b1_x1)), 2)
+                    rho_h2=torch.pow(((b2_y2 - b2_y1) - (b1_y2 - b1_y1)), 2)
                     cw2=torch.pow(cw , 2)+eps
                     ch2=torch.pow(ch , 2)+eps
-                    return iou-((rho2 / c2 + w_dis / cw2 + h_dis / ch2) + (rho2 / c2 + v * alpha)) / 2
+                    return iou-((rho2 / c2 + rho_w2 / cw2 + rho_h2 / ch2) + (rho2 / c2 + v * alpha_ciou)) / 2
 
-                return iou - (rho2 / c2 + v * alpha)  # CIoU
+                return iou - (rho2 / c2 + v * alpha_ciou)  # CIoU
             
             elif EIoU: # 0116 EIoU https://arxiv.org/abs/2101.08158
-                w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
-                h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
-                cw2=torch.pow(cw , 2)+eps
-                ch2=torch.pow(ch , 2)+eps
-                return iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
-            
-            else: # 0221 Focal-EIoU https://arxiv.org/abs/2101.08158
-                w_dis=torch.pow(b1_x2-b1_x1-b2_x2+b2_x1, 2)
-                h_dis=torch.pow(b1_y2-b1_y1-b2_y2+b2_y1, 2)
-                cw2=torch.pow(cw , 2)+eps
-                ch2=torch.pow(ch , 2)+eps
-                gamma = 0.5
-                return (iou**gamma)*(1.0-(iou-(rho2/c2+w_dis/cw2+h_dis/ch2)))-1.0
+                rho_w2 = torch.pow(((b2_x2 - b2_x1) - (b1_x2 - b1_x1)), 2)
+                rho_h2 = torch.pow(((b2_y2 - b2_y1) - (b1_y2 - b1_y1)), 2)
+                cw2 = torch.pow(cw ** 2 + eps, alpha)
+                ch2 = torch.pow(ch ** 2 + eps, alpha)
+                if Focal: # 0307 Focal-EIoU https://arxiv.org/abs/2101.08158
+                    return iou - (rho2 / c2 + rho_w2 / cw2 + rho_h2 / ch2), torch.pow(inter/(union + eps), gamma)  # Focqal-EIoU
+                else:
+                    return iou - (rho2 / c2 + rho_w2 / cw2 + rho_h2 / ch2)  # EIoU
 
         elif GIoU:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
             c_area = cw * ch + eps  # convex area
