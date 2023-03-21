@@ -7,7 +7,7 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
     #image = cv2.imread(imageFile)
     image = cv2.imdecode(np.fromfile(imageFile, dtype=np.uint8), cv2.IMREAD_COLOR) #中文
     h,w,c = image.shape #height width channel
-    colorSet = {0: (0, 0, 255), 1: (0, 255, 0), 2: (255, 0, 0), 3: (50, 150, 255), 4: (50, 255, 150), 5: (255, 150, 50)}
+    colorSet = {0: (0, 0, 255), 1: (0, 255, 0), 2: (255, 0, 0), 3: (255, 255, 0), 4: (255, 0, 255), 5: (0, 0, 0)}
     #cv2.imshow('mask',image)
     with open(informFile,'r') as f:
         for line in f.readlines():
@@ -34,9 +34,9 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
             
     #cv2.imshow('mask',image)
     if saveFlag:
-        os.makedirs('./runs/out',exist_ok = True)
-        cv2.imwrite('./runs/out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.jpg', image)
-        cv2.imencode('.jpg', image)[1].tofile('./runs/out/' + os.path.basename(imageFile)[:-4] + '_yolov5_visualize.jpg') #中文
+        os.makedirs('./runs/out/GT',exist_ok = True)
+        cv2.imwrite('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg', image)
+        cv2.imencode('.jpg', image)[1].tofile('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg') #中文
     return image
 
 def main(imageFolder,labelFolder,fileName = None):

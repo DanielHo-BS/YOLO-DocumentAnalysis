@@ -161,7 +161,7 @@ def calculate_matrix(nc,iou_thres,ground_truth_inform,prediction_inform):
         for i, dc in enumerate(prediction_classes):
             if not any(m1 == i):
                 matrix[dc, nc] += 1  # background FN
-    print(temp_inform,temp_inform_2)
+    #print(temp_inform,temp_inform_2)
     return matrix
 
 def get_tp_fp_fn(matrix):
