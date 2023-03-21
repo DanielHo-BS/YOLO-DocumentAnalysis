@@ -96,3 +96,13 @@ python detect.py --weights yolov7_pdf_detect_v0.05.pt --source ../datasets/old/h
 
 python detect.py --weights 0223_best_DocLayNet_CIoU_50000.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0223
 python detect.py --weights 0223_best_DocLayNet_CIoU_50000.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0223 --save_txt
+python detect.py --weights 0223_best_DocLayNet_CIoU_50000.pt --source runs/error  --device 0 --project runs/detect/0223/ --name error
+
+
+
+python detect.py --weights 0307_FEIoU.pt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0307 --name old_val
+python detect.py --weights 0307_FEIoU.pt --source ../datasets/old/hand_craft_v10/images/test  --device 0 --project runs/detect/0307 --name old_test
+python detect.py --weights 0307_FEIoU.pt --source ../datasets/dev/jpg  --device 0 --project runs/detect/0307 --name dev_jpg
+python detect.py --weights 0307_FEIoU.pt --source ../datasets/dev/png  --device 0 --project runs/detect/0307 --name dev_png
+
+

@@ -43,3 +43,6 @@ python test.py --weights 0212_best.pt --data pdf_dataset.yaml --task test --proj
 
 python test.py --weights 0223_best_DocLayNet_CIoU_50000.pt --data pdf_dataset_old.yaml --task val --project runs/test/0228_DocLayNet --v5-metric --save-txt
 python test.py --weights 0223_best_DocLayNet_CIoU_50000.pt --data pdf_dataset_old.yaml --task test --project runs/test/0228_DocLayNet --v5-metric
+
+python test.py --weights 0307_FEIoU.pt --data pdf_dataset_old.yaml --task val --project runs/test/0307_FEIoU --v5-metric --save-txt
+python test.py --weights 0307_FEIoU.pt --data pdf_dataset_old.yaml --task test --project runs/test/0307_FEIoU --v5-metric --save-txt
