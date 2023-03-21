@@ -78,6 +78,7 @@ DIoU: iou - rho2 / c2
 CIoU: iou - (rho2 / c2 + v * alpha) 
 WIoU: 1 - normalized_wasserstein
 EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
+Focal-EIoU
 ```
 
 #### Add new loss
@@ -88,6 +89,19 @@ EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
     ```python
     iou = bbox_iou(pbox.T, selected_tbox, x1y1x2y2=False, CIoU=True)  # iou(prediction, target) 預設使用CIoU 方式計算
     ```
+
+### Tools
+
+```bash
+# Drew the bbox with labels
+python tools/drew_bbox.py
+
+# Combine two images in one.
+python tools/combin_images.py
+
+# Calculator error IOU
+python tools/Indicator/indicator_calculator.py
+```
 
 ## **Rerence**
 
