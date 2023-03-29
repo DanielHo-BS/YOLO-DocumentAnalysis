@@ -387,8 +387,11 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, WIoU
                     cw2=torch.pow(cw , 2)+eps
                     ch2=torch.pow(ch , 2)+eps
                     return iou-((rho2 / c2 + rho_w2 / cw2 + rho_h2 / ch2) + (rho2 / c2 + v * alpha_ciou)) / 2
-
-                return iou - (rho2 / c2 + v * alpha_ciou)  # CIoU
+                
+                if Focal: # 0329 Focqal-CIoU
+                    return iou - (rho2 / c2 + v * alpha_ciou), torch.pow(inter/(union + eps), gamma)  # Focqal-CIoU
+                else:
+                    return iou - (rho2 / c2 + v * alpha_ciou)  # CIoU
             
             elif EIoU: # 0116 EIoU https://arxiv.org/abs/2101.08158
                 rho_w2 = torch.pow(((b2_x2 - b2_x1) - (b1_x2 - b1_x1)), 2)
