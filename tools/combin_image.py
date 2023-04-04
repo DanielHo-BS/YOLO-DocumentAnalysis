@@ -2,23 +2,26 @@ import cv2
 import numpy as np
 import shutil
 import os
+import argparse
 
-PATH1 = "./runs/GT"
-PATH2 = "./runs/error/FEIoU"
-SAVEPATH = "./runs/out/GT_FEIoU_Error"
+parser = argparse.ArgumentParser()
+parser.add_argument('--path1', type=str, default="./runs/GT", help='ground truth label(s) path')
+parser.add_argument('--path2', type=str, default="./runs/error", help='prediction label(s) path')
+parser.add_argument('--save', type=str, default="./runs/out", help='save image(s) path')
+opt = parser.parse_args()
 
-files1 = os.listdir(PATH1)
-files2 = os.listdir(PATH2)
+files1 = os.listdir(opt.path1)
+files2 = os.listdir(opt.path2)
 
-if not os.path.exists(SAVEPATH):
-    os.mkdir(SAVEPATH)
+if not os.path.exists(opt.save):
+    os.mkdir(opt.save)
 
 for i in range(len(files1)):
     if files1[i] == "labels" or files1[i] not in files2:
         continue
-    fullPath1 = os.path.join(PATH1,files1[i])
-    fullPath2 = os.path.join(PATH2,files1[i])
-    fullSavePath = os.path.join(SAVEPATH,files1[i])
+    fullPath1 = os.path.join(opt.path1,files1[i])
+    fullPath2 = os.path.join(opt.path2,files1[i])
+    fullSavePath = os.path.join(opt.save,files1[i])
 
     img1 = cv2.imread(fullPath1)
     img2 = cv2.imread(fullPath2)
