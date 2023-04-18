@@ -651,6 +651,10 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                 img = np.fliplr(img)
                 if nL:
                     labels[:, 1] = 1 - labels[:, 1]
+                    
+            if random.random() <  hyp['gauss']:
+                noise = cv2.randn(img,(0),(99))
+                img = cv2.add(img, noise)
 
         labels_out = torch.zeros((nL, 6))
         if nL:
