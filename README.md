@@ -42,7 +42,7 @@ pip install -r requirement.txt
 
 ### Detect
 
-Download [the weight of model](https://mailntustedutw-my.sharepoint.com/:u:/g/personal/m11107309_ms_ntust_edu_tw/EXOa0iMb3KxFpnbe3EUcSvIB5Wlc_UUFqf1XuIz6SfMqcA?e=L75e9B)
+Download [the weight of model](https://mailntustedutw-my.sharepoint.com/:f:/g/personal/m11107309_ms_ntust_edu_tw/Ep0SVoz2m2dJjCPQkv7SoJQB6lI7ppW-wu2xc5QJmcbimQ?e=aNOFOr)
 
 ```bash
 python detect.py --weights <weight.pt> --source <images_path>
