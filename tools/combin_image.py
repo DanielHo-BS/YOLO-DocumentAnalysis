@@ -5,7 +5,7 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--path1', type=str, default="./runs/GT", help='ground truth label(s) path')
+parser.add_argument('--path1', type=str, default="./runs/GT/val", help='ground truth label(s) path')
 parser.add_argument('--path2', type=str, default="./runs/error", help='prediction label(s) path')
 parser.add_argument('--save', type=str, default="./runs/out", help='save image(s) path')
 opt = parser.parse_args()

@@ -60,8 +60,8 @@ def main(imageFolder,labelFolder,fileName = None):
                     visualize(imageFile,labelFile,True) #給True儲存
 
 if __name__ in '__main__':
-    imageFolder = "../datasets/old/hand_craft_v10/images/val/"
-    labelFolder = "../datasets/old/hand_craft_v10/labels/val/"
+    imageFolder = "../datasets/old/hand_craft_v10/images/train/"
+    labelFolder = "../datasets/old/hand_craft_v10/labels/train/"
 
     #main(imageFolder,labelFolder,'temp')
     main(imageFolder,labelFolder)
