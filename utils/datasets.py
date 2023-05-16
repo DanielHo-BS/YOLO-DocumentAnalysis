@@ -1151,8 +1151,8 @@ def random_perspective(img, targets=(), segments=(), degrees=10, translate=.1, s
 
     # Rotation and Scale
     R = np.eye(3)
-    a = random.uniform(-degrees, degrees)
-    # a += random.choice([-180, -90, 0, 90])  # add 90deg rotations to small rotations
+    # a = random.uniform(-degrees, degrees)
+    a = random.choices([-degrees, 0, degrees], weights=[5, 90, 5])  # 0516 # add 90deg rotations with wights 
     s = random.uniform(1 - scale, 1.1) # 1202 限制放大倍濾 s = random.uniform(1 - scale, 1.1 + scale)
     # s = 2 ** random.uniform(-scale, scale)
     R[:2] = cv2.getRotationMatrix2D(angle=a, center=(0, 0), scale=s)
@@ -1500,7 +1500,8 @@ def random_perspective_alt(img, targets=(), segments=(), degrees=10, translate=.
     # custom Position & Rotation and ScaleScale
     P = np.eye(3)
     R = np.eye(3)
-    a = random.uniform(-degrees, degrees)
+    # a = random.uniform(-degrees, degrees)
+    a = random.choices([-degrees,0,degrees], weights=[5, 90, 5]) # 0516 # add 90deg rotations with wights
     
     if fix:
         s, P[0, 2] = random.choice([(0.444, width*3/8), (0.666, 0), (0.333, 0), (random.uniform(1, 1.1 + scale), width*3/8), (random.uniform(1, 1.1 + scale), width*-3/8), (1, width*1/2)]) # 平衡3:3
