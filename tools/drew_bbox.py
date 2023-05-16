@@ -2,6 +2,7 @@ import os
 import cv2
 import random
 import numpy as np
+from tqdm import tqdm
 
 def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
     #image = cv2.imread(imageFile)
@@ -9,8 +10,13 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
     h,w,c = image.shape #height width channel
     colorSet = {0: (0, 0, 255), 1: (0, 255, 0), 2: (255, 0, 0), 3: (255, 255, 0), 4: (255, 0, 255), 5: (0, 0, 0)}
     #cv2.imshow('mask',image)
+    if os.path.exists('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg'):
+        return None
     with open(informFile,'r') as f:
         for line in f.readlines():
+            if len(line.split(' ')) == 1:
+                print("Skip line of file:", imageFile)
+                continue
             _class,x_center, y_center, box_width, box_height = line.split(' ')
             _class = int(_class)
             x_center = float(x_center)*w
@@ -18,6 +24,7 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
             box_width = float(box_width)*w
             box_height = float(box_height)*h
             if _class > 4:
+                print(informFile)
                 continue
 
             x1 = int(x_center - box_width/2)
@@ -52,16 +59,27 @@ def main(imageFolder,labelFolder,fileName = None):
         visualize(imageFile,labelFile,True) #給True儲存
         
     else:
-        for imageFile in os.listdir(imageFolder):
-            for labelFile in os.listdir(labelFolder):
-                if imageFile[:-4] == labelFile[:-4]:
+        imageList = os.listdir(imageFolder)
+        labelList = os.listdir(labelFolder)
+        with tqdm(total=len(imageList)) as pbar:
+            pbar.set_description('Processing:')
+            for imageFile in imageList:
+                if imageFile[:-4]+".txt" in labelList:
+                    labelFile = os.path.join(labelFolder, imageFile[:-4]+".txt")
                     imageFile = os.path.join(imageFolder, imageFile)
-                    labelFile = os.path.join(labelFolder, labelFile)
                     visualize(imageFile,labelFile,True) #給True儲存
+                else:
+                    print("Not find the label: ",imageFile)
+                pbar.update(1)
+
 
 if __name__ in '__main__':
-    imageFolder = "../datasets/old/hand_craft_v10/images/train/"
-    labelFolder = "../datasets/old/hand_craft_v10/labels/train/"
-
+    
+    imageFolder = "../datasets/old/hand_craft_v10/images/val/"
+    labelFolder = "../datasets/old/hand_craft_v10/labels/val/"
+    '''
+    imageFolder = "../datasets/old/hand_craft_v10//test/image/"
+    labelFolder = "../datasets/old/hand_craft_v10/test/label/"
+    '''
     #main(imageFolder,labelFolder,'temp')
     main(imageFolder,labelFolder)
