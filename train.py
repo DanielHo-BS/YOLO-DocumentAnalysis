@@ -527,8 +527,8 @@ def train(hyp, opt, device, tb_writer=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='./yolov7.pt', help='initial weights path')
-    parser.add_argument('--cfg', type=str, default='models/yolov7-CARAFE.yaml', help='model.yaml path')
-    parser.add_argument('--data', type=str, default='/mnt/d/yolov7-main/data/pdf_dataset_old.yaml', help='data.yaml path')
+    parser.add_argument('--cfg', type=str, default='models/yolov7.yaml', help='model.yaml path')
+    parser.add_argument('--data', type=str, default='data/pdf_dataset_old.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.p5.degrees.yaml', help='hyperparameters path')
     parser.add_argument('--epochs', type=int, default=300)
     parser.add_argument('--batch-size', type=int, default=8, help='total batch size for all GPUs')
