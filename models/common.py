@@ -12,6 +12,7 @@ from torchvision.ops import DeformConv2d
 from PIL import Image
 from torch.cuda import amp
 
+from models.coordattention import CoordAtt
 from utils.datasets import letterbox
 from utils.general import non_max_suppression, make_divisible, scale_coords, increment_path, xyxy2xywh
 from utils.plots import color_list, plot_one_box
@@ -61,6 +62,15 @@ class Concat(nn.Module):
     def forward(self, x):
         return torch.cat(x, self.d)
 
+class Concat_ATT(nn.Module):
+    def __init__(self, channel, dimension=1):
+        super(Concat_ATT, self).__init__()
+        self.d = dimension
+        self.att = CoordAtt(channel)
+
+    def forward(self, x):
+        return self.att(torch.cat(x, self.d))
+
 
 class Chuncat(nn.Module):
     def __init__(self, dimension=1):
@@ -109,6 +119,21 @@ class Conv(nn.Module):
 
     def fuseforward(self, x):
         return self.act(self.conv(x))
+    
+class Conv_ATT(nn.Module):
+    # Standard convolution
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Conv_ATT, self).__init__()
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.bn = nn.BatchNorm2d(c2)
+        self.act = nn.SiLU() if act is True else (act if isinstance(act, nn.Module) else nn.Identity())
+        self.att = CoordAtt(c2)
+
+    def forward(self, x):
+        return self.att(self.act(self.bn(self.conv(x))))
+
+    def fuseforward(self, x):
+        return self.att(self.act(self.conv(x)))
     
 
 class RobustConv(nn.Module):
@@ -2277,3 +2302,44 @@ class SELayer(nn.Module):
         y = self.fc(y).view(b, c, 1, 1)
         return x * y
 ##### end of MBConv for RFCR #####  # 0110 實作 RFCR
+
+
+class CARAFE(nn.Module):
+    def __init__(self, c, k_enc=3, k_up=5, c_mid=64, scale=2):
+        """ The unofficial implementation of the CARAFE module.
+        The details are in "https://arxiv.org/abs/1905.02188".
+        Args:
+            c: The channel number of the input and the output.
+            c_mid: The channel number after compression.
+            scale: The expected upsample scale.
+            k_up: The size of the reassembly kernel.
+            k_enc: The kernel size of the encoder.
+        Returns:
+            X: The upsampled feature map.
+        """
+        super(CARAFE, self).__init__()
+        self.scale = scale
+
+        self.comp = Conv(c, c_mid)
+        self.enc = Conv(c_mid, (scale*k_up)**2, k=k_enc, act=False)
+        self.pix_shf = nn.PixelShuffle(scale)
+
+        self.upsmp = nn.Upsample(scale_factor=scale, mode='nearest')
+        self.unfold = nn.Unfold(kernel_size=k_up, dilation=scale, 
+                                padding=k_up//2*scale)
+
+    def forward(self, X):
+        b, c, h, w = X.size()
+        h_, w_ = h * self.scale, w * self.scale
+        
+        W = self.comp(X)                                # b * m * h * w
+        W = self.enc(W)                                 # b * 100 * h * w
+        W = self.pix_shf(W)                             # b * 25 * h_ * w_
+        W = torch.softmax(W, dim=1)                         # b * 25 * h_ * w_
+
+        X = self.upsmp(X)                               # b * c * h_ * w_
+        X = self.unfold(X)                              # b * 25c * h_ * w_
+        X = X.view(b, c, -1, h_, w_)                    # b * 25 * c * h_ * w_
+
+        X = torch.einsum('bkhw,bckhw->bchw', [W, X])    # b * c * h_ * w_
+        return X

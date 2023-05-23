@@ -759,7 +759,7 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
                 pass
 
         n = max(round(n * gd), 1) if n > 1 else n  # depth gain
-        if m in [nn.Conv2d, Conv, RobustConv, RobustConv2, DWConv, GhostConv, RepConv, RepConv_OREPA, DownC, 
+        if m in [nn.Conv2d, Conv, Conv_ATT, RobustConv, RobustConv2, DWConv, GhostConv, RepConv, RepConv_OREPA, DownC, 
                  SPP, SPPF, SPPCSPC, GhostSPPCSPC, MixConv2d, Focus, Stem, GhostStem, CrossConv, 
                  Bottleneck, BottleneckCSPA, BottleneckCSPB, BottleneckCSPC, 
                  RepBottleneck, RepBottleneckCSPA, RepBottleneckCSPB, RepBottleneckCSPC,  
@@ -806,6 +806,9 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
             args = [ch[f]]
         elif m is Concat:
             c2 = sum([ch[x] for x in f])
+        elif m is Concat_ATT:
+            c2 = sum([ch[x] for x in f])
+            args = [c2]
         elif m is Chuncat:
             c2 = sum([ch[x] for x in f])
         elif m is Shortcut:
@@ -824,6 +827,9 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
             c2 = ch[f] // args[0] ** 2
         elif m is WeightedSum: # 0110 實作 RFCR
             c2 = ch[f[0]]
+        elif m is CARAFE:
+            c2 = ch[f]
+            args = [c2, *args]
         else:
             c2 = ch[f]
         
@@ -842,9 +848,9 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='yolor-csp-c.yaml', help='model.yaml')
+    parser.add_argument('--cfg', type=str, default='/mnt/d/yolov7-main/models/yolov7-CARAFE.yaml', help='model.yaml')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
-    parser.add_argument('--profile', action='store_true', help='profile model speed')
+    parser.add_argument('--profile', action='store_true',default=True, help='profile model speed')
     opt = parser.parse_args()
     opt.cfg = check_file(opt.cfg)  # check file
     set_logging()
