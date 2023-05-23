@@ -10,6 +10,9 @@ def pdf2imgs(pdf_src):
     else:
         filename=pdf_src.split('\\')[-2]+'_'+pdf_src.split('\\')[-1]
     foldername=filename.split(".")[0]
+    if filename.split(".")[-1] != "pdf":
+        print("Skip the file: "+filename)
+        return None
     #if not os.path.exists('./img'):
     #    os.makedirs('./img')
     if not os.path.exists('./img/'+foldername):
@@ -33,7 +36,7 @@ def checkFolder(pdf_path):
 def checkPDF(input_path, file_list):
     if not file_list:
         print("\nNo files found")
-        exit()
+        return None
     else:
         for file in file_list:
             pdf_path = input_path+"/"+file
@@ -47,5 +50,5 @@ def main(input_path):
     print("Done All!!")
 
 if __name__ == "__main__":
-    input_path = "../test"
+    input_path = "./dataset"
     main(input_path)
