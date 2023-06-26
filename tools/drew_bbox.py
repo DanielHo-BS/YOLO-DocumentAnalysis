@@ -1,7 +1,8 @@
-import os
+import argparse
 import cv2
 import random
 import numpy as np
+import os
 from tqdm import tqdm
 
 def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
@@ -10,7 +11,7 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
     h,w,c = image.shape #height width channel
     colorSet = {0: (0, 0, 255), 1: (0, 255, 0), 2: (255, 0, 0), 3: (255, 255, 0), 4: (255, 0, 255), 5: (0, 0, 0)}
     #cv2.imshow('mask',image)
-    if os.path.exists('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg'):
+    if os.path.exists(opt.save + os.path.basename(imageFile)[:-4] + '.jpg'):
         return None
     with open(informFile,'r') as f:
         for line in f.readlines():
@@ -41,9 +42,9 @@ def visualize(imageFile,informFile,saveFlag = False): #給路徑位置
             
     #cv2.imshow('mask',image)
     if saveFlag:
-        os.makedirs('./runs/out/GT',exist_ok = True)
-        cv2.imwrite('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg', image)
-        cv2.imencode('.jpg', image)[1].tofile('./runs/out/GT/' + os.path.basename(imageFile)[:-4] + '.jpg') #中文
+        os.makedirs(opt.save,exist_ok = True)
+        cv2.imwrite(opt.save + os.path.basename(imageFile)[:-4] + '.jpg', image)
+        #cv2.imencode('.jpg', image)[1].tofile(opt.save + os.path.basename(imageFile)[:-4] + '.jpg') #中文
     return image
 
 def main(imageFolder,labelFolder,fileName = None):
@@ -74,12 +75,11 @@ def main(imageFolder,labelFolder,fileName = None):
 
 
 if __name__ in '__main__':
-    
-    imageFolder = "../datasets/old/hand_craft_v10/images/val/"
-    labelFolder = "../datasets/old/hand_craft_v10/labels/val/"
-    '''
-    imageFolder = "../datasets/old/hand_craft_v10//test/image/"
-    labelFolder = "../datasets/old/hand_craft_v10/test/label/"
-    '''
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--imageFolder', type=str, default="../datasets/old/hand_craft_v10/images/train/", help='ground truth label(s) path')
+    parser.add_argument('--labelFolder', type=str, default="../datasets/old/hand_craft_v10/labels/train/", help='prediction label(s) path')
+    parser.add_argument('--save', type=str, default="./runs/out/GT/train/", help='save image(s) path')
+    opt = parser.parse_args()
     #main(imageFolder,labelFolder,'temp')
-    main(imageFolder,labelFolder)
+    main(opt.imageFolder,opt.labelFolder)
