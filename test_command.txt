@@ -56,3 +56,6 @@ python test.py --weights 0404_EIoU.pt --data pdf_dataset.yaml --task val --proje
 
 python test.py --weights 0418_FCIoU.pt --data pdf_dataset_old.yaml --task val --project runs/test/0418_FCIoU --v5-metric --save-txt --name old_val --device 0 --batch-size 8
 python test.py --weights 0418_FCIoU.pt --data pdf_dataset.yaml --task val --project runs/test/0418_FCIoU --v5-metric --save-txt --name val --device 0 --batch-size 8
+
+python test.py --weights 0516_FCIoU_degrees.pt --data pdf_dataset_old.yaml --task val --project runs/test/0516_FCIoU_degrees --v5-metric --save-txt --name old_val --device 0 --batch-size 8
+python test.py --weights 0516_FCIoU_degrees.pt --data pdf_dataset.yaml --task val --project runs/test/0516_FCIoU_degrees --v5-metric --save-txt --name val --device 0 --batch-size 8
