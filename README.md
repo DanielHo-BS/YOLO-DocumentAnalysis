@@ -71,24 +71,53 @@ python train.py --workers 1 --device 0 --batch-size 8 --data data/pdf_dataset.ya
 
 ### Loss
 
-```test
-IoU: inter / union
-GIoU: iou - (c_area - union) / c_area
-DIoU: iou - rho2 / c2 
-CIoU: iou - (rho2 / c2 + v * alpha) 
-WIoU: 1 - normalized_wasserstein
-EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
-Focal-EIoU
-```
+* IoU: inter / union
+* GIoU: iou - (c_area - union) / c_area
+* DIoU: iou - rho2 / c2
+* CIoU: iou - (rho2 / c2 + v * alpha)
+* WIoU: 1 - normalized_wasserstein
+* EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
+* Focal
 
 #### Add new loss
 
 1. Add new loss to ``general.py``.
 2. Change loss of **bbox_iou()** from ``loss.py``.
 
-    ```python
-    iou = bbox_iou(pbox.T, selected_tbox, x1y1x2y2=False, CIoU=True)  # iou(prediction, target) 預設使用CIoU 方式計算
-    ```
+```python
+iou = bbox_iou(pbox.T, selected_tbox, x1y1x2y2=False, <which IoU>=True, Focal=False)  
+# iou(prediction, target) 預設使用CIoU 方式計算
+```
+
+### NMS
+
+* NMS (W/O 不使用torchvision)
+* NMS
+* Soft NMS
+* W/O NMS
+
+Change the nms of ``non_max_suppression_alt``  from ``general.py``.
+
+```python
+#i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS 1227 (不使用torchvision)
+#i = nms(boxes, scores, iou_thres).to('cuda:0' if torch.cuda.is_available() else 'cpu') # 1227 自訂義nms 排列依面積決定
+i = soft_nms(boxes, scores, iou_thres, sigma, score_threshold).to('cuda:0' if torch.cuda.is_available() else 'cpu')
+#i = torch.tensor([i for i in range(len(boxes))]).to('cuda:0' if torch.cuda.is_available() else 'cpu') # 無nms 1227 dev
+```
+
+#### Add IoU to NMS
+
+Change the IoU of ``box_iou_for_nms`` from ``general.py``.
+
+* GIoU
+* DIoU
+* CIoU
+* SIoU
+* EIou
+
+```python
+iou = box_iou_for_nms(bboxes[i], bboxes[order[1:]], DIoU=True).squeeze()
+```
 
 ### Tools
 

@@ -816,9 +816,9 @@ def non_max_suppression_alt(prediction, conf_thres=0.25, iou_thres=0.45, ioa_thr
         #boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
         boxes, scores = x[:, :4], x[:, 4] # 1226 remove offset
         #i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS 1227 (不使用torchvision)
-        #i = nms(boxes, scores, iou_thres) # 1227 自訂義nms 排列依面積決定
+        #i = nms(boxes, scores, iou_thres).to('cuda:0' if torch.cuda.is_available() else 'cpu') # 1227 自訂義nms 排列依面積決定
         i = soft_nms(boxes, scores, iou_thres, sigma, score_threshold).to('cuda:0' if torch.cuda.is_available() else 'cpu')
-        #i = torch.tensor([i for i in range(len(boxes))]).to('cuda:0') # 無nms 1227 dev
+        #i = torch.tensor([i for i in range(len(boxes))]).to('cuda:0' if torch.cuda.is_available() else 'cpu') # 無nms 1227 dev
         if i.shape[0] > max_det:  # limit detections
             i = i[:max_det]
         if merge and (1 < n < 3E3):  # Merge NMS (boxes merged using weighted mean)
@@ -1167,7 +1167,7 @@ def soft_nms(bboxes, scores, iou_thresh=0.45, sigma=0.5, score_threshold=0.5):
             i = order[0]
             keep.append(i)
         
-        iou = box_iou_for_nms(bboxes[i], bboxes[order[1:]]).squeeze()
+        iou = box_iou_for_nms(bboxes[i], bboxes[order[1:]], DIoU=True).squeeze()
         
         idx = (iou > iou_thresh).nonzero().squeeze()
         if idx.numel() > 0: 
