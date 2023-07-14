@@ -56,8 +56,9 @@ The result will be saved to `./runs/exp`.
 ### Training
 
 ```bash
-python train.py --workers 1 --device 0 --batch-size 8 --data data/pdf_dataset.yaml --cfg cfg/training/yolov7_fix_anchor.yaml --weights 'yolov7.pt' --name exp --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation_scale_0.5.yaml --project runs/train
-
+python train.py --device 0,1 --batch-size 16 --weights ./yolov7.pt \
+--data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --hyp data/hyp.scratch.p5.Nodegrees.yaml \
+--name yolov7  --project runs/0627_FC_NoD
 # --worker: maximum number of dataloader workers
 # --device: cuda device, i.e. 0 or 0,1,2,3 or cpu
 # --batch_size: total batch size for all GPUs
