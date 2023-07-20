@@ -170,10 +170,10 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.1, help='IOU threshold for NMS')
+    parser.add_argument('--iou-thres', type=float, default=0.2, help='IOU threshold for NMS')
     parser.add_argument('--ioa-thres', type=float, default=0.45, help='IOA threshold for NMS')
     parser.add_argument('--sigma', type=float, default=0.3, help='Sigma for soft-NMS')
-    parser.add_argument('--score-thres', type=float, default=0.4, help='Score threshold for soft-NMS')
+    parser.add_argument('--score-thres', type=float, default=0.3, help='Score threshold for soft-NMS')
     parser.add_argument('--device', default='cpu', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
