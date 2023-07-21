@@ -1,7 +1,8 @@
 import math
 from copy import copy
 from pathlib import Path
-
+import sys
+sys.path.insert(0,'.')
 import numpy as np
 import pandas as pd
 import requests
