@@ -609,7 +609,7 @@ class ComputeLossOTA: # 1129 走這
                 selected_tbox = targets[i][:, 2:6] * pre_gen_gains[i]
                 selected_tbox[:, :2] -= grid
                 iou = bbox_iou(pbox.T, selected_tbox, x1y1x2y2=False, CIoU=True,  Focal=False)  # iou(prediction, target)
-                if type(iou) is tuple:
+                if type(iou) is tuple:  # Add for Focal-iou loss
                     lbox += (iou[1].detach() * (1 - iou[0])).mean()
                     iou = iou[0]
                 else:
@@ -651,7 +651,7 @@ class ComputeLossOTA: # 1129 走這
         #indices, anch = self.find_4_positive(p, targets)
         #indices, anch = self.find_5_positive(p, targets)
         #indices, anch = self.find_9_positive(p, targets)
-
+        device = torch.device(targets.device)
         matching_bs = [[] for pp in p]
         matching_as = [[] for pp in p]
         matching_gjs = [[] for pp in p]
@@ -691,7 +691,7 @@ class ComputeLossOTA: # 1129 走這
                 all_gj.append(gj)
                 all_gi.append(gi)
                 all_anch.append(anch[i][idx])
-                from_which_layer.append(torch.ones(size=(len(b),)) * i)
+                from_which_layer.append((torch.ones(size=(len(b),)) * i).to(device))
                 
                 fg_pred = pi[b, a, gj, gi]                
                 p_obj.append(fg_pred[:, 4:5])
@@ -748,7 +748,7 @@ class ComputeLossOTA: # 1129 走這
                 + 3.0 * pair_wise_iou_loss
             )
 
-            matching_matrix = torch.zeros_like(cost)
+            matching_matrix = torch.zeros_like(cost, device=device)
 
             for gt_idx in range(num_gt):
                 _, pos_idx = torch.topk(
@@ -762,7 +762,7 @@ class ComputeLossOTA: # 1129 走這
                 _, cost_argmin = torch.min(cost[:, anchor_matching_gt > 1], dim=0)
                 matching_matrix[:, anchor_matching_gt > 1] *= 0.0
                 matching_matrix[cost_argmin, anchor_matching_gt > 1] = 1.0
-            fg_mask_inboxes = matching_matrix.sum(0) > 0.0
+            fg_mask_inboxes = (matching_matrix.sum(0) > 0.0).to(device)
             matched_gt_inds = matching_matrix[:, fg_mask_inboxes].argmax(0)
                      
             from_which_layer = from_which_layer[fg_mask_inboxes.to('cpu')] # 1027 偵錯 1129 更新
