@@ -1,28 +1,44 @@
-# Detect by yolov7 with new weights
-#python detect.py --weights 0418_FCIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/0418 --name old_val
-#python detect.py --weights 0418_FCIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/test  --device 0 --project runs/detect/0418 --name old_test
-#python detect.py --weights 0418_FCIoU.pt --save-txt --source ../datasets/dev/jpg  --device 0 --project runs/detect/0418 --name dev_jpg
-#python detect.py --weights 0418_FCIoU.pt --save-txt --source ../datasets/dev/png  --device 0 --project runs/detect/0418 --name dev_png
-# Error Calculate with GT
-#python tools/Indicator/indicator_calculator.py --prediction-path ./runs/detect/0418/old_val/labels --source ./runs/detect/0418/old_val --save-path ./runs/error/FIoU_Gaussian
+# old data without DocLayNet:
+# Training set: 7006
+# Validation set: 2936
+
+# Drew the GT label
+#python ./tools/drew_bbox.py --save ./runs/GT/train/
+#python ./tools/drew_bbox.py --imageFolder ../datasets/old/hand_craft_v10/images/val/ --labelFolder ../datasets/old/hand_craft_v10/labels/val/ --save ./runs/GT/val/
+
+# Detect by yolov7 with weights(C/E/FC/FE)
+#python detect.py --weights 0223_CIoU.pt --save-txt --source ../datasets/pdf_layout_detector/pdf_dataset/total  --device 0 --project runs/detect/0605 --name c
+#python detect.py --weights 0404_EIoU.pt --save-txt --source ../datasets/pdf_layout_detector/pdf_dataset/total  --device 0 --project runs/detect/0605 --name e
+#python detect.py --weights 0329_FCIoU.pt --save-txt --source ../datasets/pdf_layout_detector/pdf_dataset/total  --device 0 --project runs/detect/0605 --name fc
+#python detect.py --weights 0307_FEIoU.pt --save-txt --source ../datasets/pdf_layout_detector/pdf_dataset/total  --device 0 --project runs/detect/0605 --name fe
+
+# Error Calculate with c/e fc/fe -- c/fc e/fe -- c/fe e/fc
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/c/labels --prediction-path ./runs/detect/0605/e/labels --source ./runs/detect/0605/c --save-path ./runs/error/c_e
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/fc/labels --prediction-path ./runs/detect/0605/fe/labels --source ./runs/detect/0605/fc --save-path ./runs/error/fc_fe
+
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/c/labels --prediction-path ./runs/detect/0605/fc/labels --source ./runs/detect/0605/c --save-path ./runs/error/c_fc
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/e/labels --prediction-path ./runs/detect/0605/fe/labels --source ./runs/detect/0605/e --save-path ./runs/error/e_fe
+
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/c/labels --prediction-path ./runs/detect/0605/fe/labels --source ./runs/detect/0605/c --save-path ./runs/error/c_fe
+#python tools/Indicator/indicator_calculator.py --ground-truth-path  ./runs/detect/0605/e/labels --prediction-path ./runs/detect/0605/fc/labels --source ./runs/detect/0605/fc --save-path ./runs/error/e_fc
+
 # Drew the result
-#python tools/combin_image.py  --path2 ./runs/error/FIoU_Gaussian --save ./runs/out/GT_FCIoU_Gaussian
+#python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/FCIoURot_GTV --save ./runs/out/FCIoURot_GTV
+#python tools/combin_image.py  --path1 ./runs/GT/train --path2 ./runs/error/FCIoURot_GTT --save ./runs/out/FCIoURot_GTT
+
+# score-thres: 0.4 & sigma: 0.1 iou-thres: 0.1
+#python detect.py --weights 0516_FCIoU_degrees.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val --score-thres 0.4 --sigma 0.1 --iou-thres 0.1 --device cpu --project runs/soft_nms --name 04_01_01
+#python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/soft_nms/04_01_01/labels --source runs/soft_nms/04_01_01/ --save-path ./runs/error/04_01_01
+#python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/04_01_01 --save ./runs/out/04_01_01
+
+# score-thres: 0.4 & sigma: 0.3 iou-thres: 0.1
+#python detect.py --weights 0516_FCIoU_degrees.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val --score-thres 0.4 --sigma 0.3 --iou-thres 0.1 --device cpu --project runs/soft_nms --name 04_03_01
+#python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/soft_nms/04_03_01/labels --source runs/soft_nms/04_03_01/ --save-path ./runs/error/04_03_01
+#python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/04_03_01 --save ./runs/out/04_03_01
+
+python detect.py --weights 0627_FC_ND.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val --device 0 --project runs/detect/0627 --name FC_ND_NMS
+python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/detect/0627/FC_ND_NMS/labels --source runs/detect/0627/FC_ND_NMS/ --save-path ./runs/error/FC_ND_NMS
+python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/FC_ND_NMS --save ./runs/out/FC_ND_NMS
 
 
-
-# CIoU
-python detect.py --weights 0223_CIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/train  --device 0 --project runs/detect/0223 --name old_train
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/train --prediction-path ./runs/detect/0223/old_train/labels --source ./runs/detect/0223/old_train --save-path ./runs/error/GT_CIOU_train
-python tools/combin_image.py  --path1 ./runs/GT/train --path2 ./runs/error/GT_CIOU_train --save ./runs/out/GT_CIOU_train
-# F-CIoU
-#python detect.py --weights 0329_FCIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/train  --device 0 --project runs/detect/0329 --name old_train
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/train --prediction-path ./runs/detect/0329/old_train/labels --source ./runs/detect/0329/old_train --save-path ./runs/error/GT_FCIOU_train
-python tools/combin_image.py  --path1 ./runs/GT/train --path2 ./runs/error/GT_FCIOU_train --save ./runs/out/GT_FCIOU_train
-# EIoU
-python detect.py --weights 0404_EIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/train  --device 0 --project runs/detect/0404 --name old_train
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/train --prediction-path ./runs/detect/0404/old_train/labels --source ./runs/detect/0404/old_train --save-path ./runs/error/GT_EIOU_train
-python tools/combin_image.py  --path1 ./runs/GT/train --path2 ./runs/error/GT_EIOU_train --save ./runs/out/GT_EIOU_train
-# F-EIoU
-python detect.py --weights 0307_FEIoU.pt --save-txt --source ../datasets/old/hand_craft_v10/images/train  --device 0 --project runs/detect/0307 --name old_train
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/train --prediction-path ./runs/detect/0307/old_train/labels --source ./runs/detect/0307/old_train --save-path ./runs/error/GT_FEIOU_train
-python tools/combin_image.py  --path1 ./runs/GT/train --path2 ./runs/error/GT_FEIOU_train --save ./runs/out/GT_FEIOU_train
+python detect.py --weights 0627_FC_ND.pt --save-txt --source ./test/dataset/test --device 0 --iou-thres 0.2 --score-thres 0.3
