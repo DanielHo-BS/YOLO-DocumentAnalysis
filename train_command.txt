@@ -28,3 +28,7 @@ python train.py --device 0,1 --batch-size 24 --data data/pdf_dataset.yaml  --cfg
 python train.py --device 0,1 --batch-size 24 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.5_custom_augmentation.yaml --project runs/0404_EIoU
 
 python train.py --device 0,1 --batch-size 24 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.mosaic.0.3_custom_gauss.yaml --project runs/0418_FCIoU
+
+python train.py --device 0,1 --batch-size 24 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.degrees.yaml --project runs/0516_FCIoU_degrees
+
+python train.py --device 0,1 --batch-size 16 --data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --weights ./yolov7.pt --name yolov7 --hyp data/hyp.scratch.p5.Nodegrees.yaml --project runs/0627_FC_NoD
