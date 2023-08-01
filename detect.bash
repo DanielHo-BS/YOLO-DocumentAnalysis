@@ -41,4 +41,4 @@ python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/o
 python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/FC_ND_NMS --save ./runs/out/FC_ND_NMS
 
 
-python detect.py --weights 0627_FC_ND.pt --save-txt --source ./test/dataset/test --device 0 --iou-thres 0.2 --score-thres 0.3
+python detect.py --weights 0801_old_v8.pt --save-txt --source ./test/dataset/test --device 0
