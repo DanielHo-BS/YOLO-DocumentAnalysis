@@ -20,12 +20,12 @@ IMG_FORMATS = ['bmp', 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'dng', 'webp', 'mpo']
 LABEL_FORMATS = ['txt']  # acceptable image suffixes
 
 class Indicator():
-    def __init__(self, image_folder, ground_truth_folder, prediction_folder, save_folder, num_class):
+    def __init__(self, image_folder, ground_truth_folder, prediction_folder, save_folder, num_class, error_thre):
         image_folder_path = str(Path(image_folder).resolve())
         ground_truth_folder_path = str(Path(ground_truth_folder).resolve())
         prediction_folder_path = str(Path(prediction_folder).resolve())
         self.save_path = str(Path(save_folder).resolve())
-
+        self.error_thre = error_thre
 
         image_files = self.check_path(image_folder_path)
         ground_truth_files = self.check_path(ground_truth_folder_path)
@@ -39,10 +39,7 @@ class Indicator():
         
         self.check()
 
-                    
-        
-        
-        
+
     def check_path(self, p):
         if '*' in p:
             files = sorted(glob.glob(p, recursive=True))  # glob
@@ -81,7 +78,7 @@ class Indicator():
 
         ##############
         # 0314 find the overboxing and underboxing
-            if (fp.sum() + fn.sum()) > 5:
+            if (fp.sum() + fn.sum()) > self.error_thre:
                 #print("Boxing Error: ", prediction_label)
                 Error_files.append(image)
 
@@ -116,10 +113,11 @@ def run(ground_truth_path = ROOT / 'data/ground_truth',  # ground truth label(s)
         prediction_path = ROOT / 'data/prediction', # prediction label(s) path
         source=ROOT / 'data/images',  # image(s) path
         save_path=ROOT / 'data/save',
-        num_class = 5
+        num_class = 5,
+        error_thre = 5
         ):
 
-    test = Indicator(source, ground_truth_path, prediction_path, save_path, num_class)
+    test = Indicator(source, ground_truth_path, prediction_path, save_path, num_class, error_thre)
 
     test.test_func()
 
@@ -135,6 +133,7 @@ def parse_opt():
     parser.add_argument('--source', type=str, default="../datasets/old/hand_craft_v10/images/val", help='image(s) path')
     parser.add_argument('--save-path', type=str, default="runs/error", help='save image(s) path')
     parser.add_argument('--num-class', type=int, default=5, help='number of class')
+    parser.add_argument('--error-thre', type=int, default=5, help='error threshold')
     
 
     opt = parser.parse_args()
