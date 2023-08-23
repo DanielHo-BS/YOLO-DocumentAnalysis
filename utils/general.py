@@ -38,7 +38,7 @@ import yaml
 
 from utils import TryExcept, emojis
 from utils.downloads import gsutil_getsize
-from utils.metrics import box_iou, fitness
+from utils.metrics import box_iou, fitness, bbox_ioa
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # YOLOv5 root directory
@@ -1090,8 +1090,10 @@ def non_max_suppression_soft(
         boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
         # i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
         i = soft_nms(boxes, scores, iou_thres, sigma, score_threshold).to('cuda:0' if torch.cuda.is_available() else 'cpu')        
+        
         if i.shape[0] > max_det:  # limit detections
             i = i[:max_det]
+
         if merge and (1 < n < 3E3):  # Merge NMS (boxes merged using weighted mean)
             # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
             iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
@@ -1100,9 +1102,9 @@ def non_max_suppression_soft(
             if redundant:
                 i = i[iou.sum(1) > 1]  # require redundancy
         
-        if ioa_thres > 0: #1110 重疊框篩選 1112 使用iter優化以加速運行時間
-            ioa = box_ioa(boxes[i], boxes[i]) > ioa_thres  # ioa matrix
-            i = i[~ioa.T.any(axis=1)]
+        if ioa_thres > 0:  # Using IoA for the removal of small objects in big objects
+            ioa = bbox_ioa((boxes-c)[i], (boxes-c)[i]) > ioa_thres  # ioa matrix
+            i = i[ioa.sum(0) < 2]
 
         output[xi] = x[i]
         if mps:

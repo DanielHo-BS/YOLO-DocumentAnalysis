@@ -55,8 +55,8 @@ def run(
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
-        iou_thres=0.45,  # NMS IOU threshold
-        ioa_thres=0.45,
+        iou_thres=0.2,  # NMS IOU threshold
+        ioa_thres=0.9,
         sigma=0.3,
         score_thres=0.3,
         max_det=1000,  # maximum detections per image
@@ -130,7 +130,7 @@ def run(
 
         # NMS
         with dt[2]:
-            #pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
+            # pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
             pred = non_max_suppression_soft(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det, 
                                             ioa_thres=ioa_thres, sigma=sigma, score_threshold=score_thres)
         # Second-stage classifier (optional)
@@ -226,7 +226,7 @@ def parse_opt():
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.2, help='NMS IoU threshold')
-    parser.add_argument('--ioa-thres', type=float, default=0.45, help='IOA threshold for NMS')
+    parser.add_argument('--ioa-thres', type=float, default=0.9, help='IOA threshold for NMS')
     parser.add_argument('--sigma', type=float, default=0.3, help='Sigma for soft-NMS')
     parser.add_argument('--score-thres', type=float, default=0.3, help='Score threshold for soft-NMS')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
