@@ -20,6 +20,33 @@ def smooth_BCE(eps=0.1):  # https://github.com/ultralytics/yolov3/issues/238#iss
     # return positive, negative label smoothing BCE targets
     return 1.0 - 0.5 * eps, 0.5 * eps
 
+import math
+class SlideLoss(nn.Module):
+    def __init__(self, loss_fcn):
+        super(SlideLoss, self).__init__()
+        self.loss_fcn = loss_fcn
+        self.reduction = loss_fcn.reduction
+        self.loss_fcn.reduction = 'none'  # required to apply SL to each element
+
+    def forward(self, pred, true, auto_iou=0.5):
+        loss = self.loss_fcn(pred, true)
+        if auto_iou < 0.2:
+            auto_iou = 0.2
+        b1 = true <= auto_iou - 0.1
+        a1 = 1.0
+        b2 = (true > (auto_iou - 0.1)) & (true < auto_iou)
+        a2 = math.exp(1.0 - auto_iou)
+        b3 = true >= auto_iou
+        a3 = torch.exp(-(true - 1.0))
+        modulating_weight = a1 * b1 + a2 * b2 + a3 * b3
+        loss *= modulating_weight
+        if self.reduction == 'mean':
+            return loss.mean()
+        elif self.reduction == 'sum':
+            return loss.sum()
+        else:  # 'none'
+            return loss
+        
 
 class VarifocalLoss(nn.Module):
     # Varifocal loss by Zhang et al. https://arxiv.org/abs/2008.13367
@@ -116,6 +143,7 @@ class ComputeLoss:
 
         # Define criteria
         BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h["cls_pw"]], device=device), reduction='none')
+        BCEcls = SlideLoss(BCEcls)
 
         # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
         self.cp, self.cn = smooth_BCE(eps=h.get("label_smoothing", 0.0))  # positive, negative BCE targets
@@ -195,11 +223,7 @@ class ComputeLoss:
         target_bboxes /= stride_tensor
         target_scores_sum = target_scores.sum()
 
-        # cls loss
-        # loss[1] = self.varifocal_loss(pred_scores, target_scores, target_labels) / target_scores_sum  # VFL way
-        loss[1] = self.BCEcls(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum  # BCE
-
-        # bbox loss
+      # bbox loss
         if fg_mask.sum():
             loss[0], loss[2], iou = self.bbox_loss(pred_distri,
                                                    pred_bboxes,
@@ -208,6 +232,13 @@ class ComputeLoss:
                                                    target_scores,
                                                    target_scores_sum,
                                                    fg_mask)
+            auto_iou = iou.mean()
+
+        # cls loss
+        # loss[1] = self.varifocal_loss(pred_scores, target_scores, target_labels) / target_scores_sum  # VFL way
+        loss[1] = self.BCEcls(pred_scores, target_scores.to(dtype), auto_iou).sum() / target_scores_sum  # BCE
+
+  
 
         loss[0] *= 7.5  # box gain
         loss[1] *= 0.5  # cls gain
