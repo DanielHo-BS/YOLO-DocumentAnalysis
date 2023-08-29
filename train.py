@@ -446,7 +446,7 @@ def parse_opt(known=False):
     parser = argparse.ArgumentParser()
     # parser.add_argument('--weights', type=str, default=ROOT / 'yolov5s.pt', help='initial weights path')
     # parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
-    parser.add_argument('--weights', type=str, default='', help='initial weights path')
+    parser.add_argument('--weights', type=str, default='yolov7-u6.pt', help='initial weights path')
     parser.add_argument('--cfg', type=str, default=ROOT / 'cfg/yolov7.yaml', help='model.yaml path')
     parser.add_argument('--data', type=str, default=ROOT / 'data/pdf_dataset_old.yaml', help='dataset.yaml path')
     parser.add_argument('--hyp', type=str, default=ROOT / 'data/hyps/hyp.scratch.yaml', help='hyperparameters path')
