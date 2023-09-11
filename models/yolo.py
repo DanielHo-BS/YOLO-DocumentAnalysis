@@ -22,6 +22,7 @@ if platform.system() != 'Windows':
 
 from models.common import *
 from models.experimental import *
+from models.rcsosa import *
 from utils.general import LOGGER, check_version, check_yaml, make_divisible, print_args
 from utils.plots import feature_visualization
 from utils.torch_utils import (fuse_conv_and_bn, initialize_weights, model_info, profile, scale_img, select_device,
@@ -280,14 +281,44 @@ class BaseModel(nn.Module):
         if c:
             LOGGER.info(f"{sum(dt):10.2f} {'-':>10s} {'-':>10s}  Total")
 
-    def fuse(self):  # fuse model Conv2d() + BatchNorm2d() layers
+    def fuse(self,img_size=640):  # fuse model Conv2d() + BatchNorm2d() layers
         LOGGER.info('Fusing layers... ')
         for m in self.model.modules():
-            if isinstance(m, (Conv, DWConv)) and hasattr(m, 'bn'):
+            if isinstance(m, RepConv):
+                # print(f" fuse_repvgg_block")
+                m.fuse_repvgg_block()
+            elif isinstance(m, RepConv_OREPA):
+                # print(f" switch_to_deploy")
+                m.switch_to_deploy()
+            elif isinstance(m, (Conv, DWConv)) and hasattr(m, 'bn'):
                 m.conv = fuse_conv_and_bn(m.conv, m.bn)  # update conv
                 delattr(m, 'bn')  # remove batchnorm
                 m.forward = m.forward_fuse  # update forward
-        self.info()
+            elif type(m) is RepVGG:
+                if hasattr(m, 'rbr_1x1'):
+                    # print(m)
+                    kernel, bias = m.get_equivalent_kernel_bias()
+                    rbr_reparam = nn.Conv2d(in_channels=m.rbr_dense.conv.in_channels,
+                                            out_channels=m.rbr_dense.conv.out_channels,
+                                            kernel_size=m.rbr_dense.conv.kernel_size,
+                                            stride=m.rbr_dense.conv.stride,
+                                            padding=m.rbr_dense.conv.padding, dilation=m.rbr_dense.conv.dilation,
+                                            groups=m.rbr_dense.conv.groups, bias=True)
+                    rbr_reparam.weight.data = kernel
+                    rbr_reparam.bias.data = bias
+                    for para in self.parameters():
+                        para.detach_()
+                    m.rbr_dense = rbr_reparam
+                    # m.__delattr__('rbr_dense')
+                    m.__delattr__('rbr_1x1')
+                    if hasattr(m, 'rbr_identity'):
+                        m.__delattr__('rbr_identity')
+                    if hasattr(m, 'id_tensor'):
+                        m.__delattr__('id_tensor')
+                    m.deploy = True
+                    delattr(m, 'se')
+                    m.forward = m.fusevggforward  # update forward
+        self.info(img_size=img_size)
         return self
 
     def info(self, verbose=False, img_size=640):  # print model information
@@ -461,13 +492,15 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
         n = n_ = max(round(n * gd), 1) if n > 1 else n  # depth gain
         if m in {
             Conv, ConvTranspose, GhostConv, Bottleneck, GhostBottleneck, SPP, SPPF, DWConv, MixConv2d, Focus,
-            BottleneckCSP, C1, C2, C2x, C3, C3TR, C3SPP, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x, SPPCSPC}:
+            BottleneckCSP, C1, C2, C2x, C3, C3TR, C3SPP, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x, SPPCSPC,
+            RepVGG, RCSOSA
+            }:
             c1, c2 = ch[f], args[0]
             if c2 != no:  # if not output
                 c2 = make_divisible(c2 * gw, 8)
 
             args = [c1, c2, *args[1:]]
-            if m in {BottleneckCSP, C1, C2, C2x, C3, C3TR, C3Ghost, C3x, SPPCSPC}:
+            if m in {BottleneckCSP, C1, C2, C2x, C3, C3TR, C3Ghost, C3x, SPPCSPC, RCSOSA}:
                 args.insert(2, n)  # number of repeats
                 n = 1
         elif m is nn.BatchNorm2d:
@@ -503,7 +536,7 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='yolov8m-base.yaml', help='model.yaml')
+    parser.add_argument('--cfg', type=str, default='./cfg/yolov7_RepVGG.yaml', help='model.yaml')
     parser.add_argument('--batch-size', type=int, default=1, help='total batch size for all GPUs')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--profile', action='store_true', help='profile model speed')
