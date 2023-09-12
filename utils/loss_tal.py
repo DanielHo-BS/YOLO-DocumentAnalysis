@@ -103,8 +103,8 @@ class BboxLoss(nn.Module):
         pred_bboxes_pos = torch.masked_select(pred_bboxes, bbox_mask).view(-1, 4)
         target_bboxes_pos = torch.masked_select(target_bboxes, bbox_mask).view(-1, 4)
         bbox_weight = torch.masked_select(target_scores.sum(-1), fg_mask).unsqueeze(-1)
-        #iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, CIoU=True)
-        iou = bbox_mpdiou(pred_bboxes_pos, target_bboxes_pos, xywh=False, feat_h=feats[0].shape[2], feat_w=feats[0].shape[3])
+        iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, SIoU=True)
+        #iou = bbox_mpdiou(pred_bboxes_pos, target_bboxes_pos, xywh=False, feat_h=feats[0].shape[2], feat_w=feats[0].shape[3])
         if type(iou) is tuple:
             if len(iou) == 2:
                 loss_iou = ((1.0 - iou[0]) * iou[1].detach() * bbox_weight).sum() / target_scores_sum
