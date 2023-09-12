@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from utils.general import xywh2xyxy
-from utils.metrics import bbox_iou
+from utils.metrics import bbox_iou, bbox_mpdiou
 from utils.tal.anchor_generator import dist2bbox, make_anchors, bbox2dist
 from utils.tal.assigner import TaskAlignedAssigner
 from utils.torch_utils import de_parallel
@@ -97,20 +97,14 @@ class BboxLoss(nn.Module):
         self.reg_max = reg_max
         self.use_dfl = use_dfl
 
-    def forward(self, pred_dist, pred_bboxes, anchor_points, target_bboxes, target_scores, target_scores_sum, fg_mask):
+    def forward(self, pred_dist, pred_bboxes, anchor_points, target_bboxes, target_scores, target_scores_sum, fg_mask, feats):
         # iou loss
         bbox_mask = fg_mask.unsqueeze(-1).repeat([1, 1, 4])  # (b, h*w, 4)
         pred_bboxes_pos = torch.masked_select(pred_bboxes, bbox_mask).view(-1, 4)
         target_bboxes_pos = torch.masked_select(target_bboxes, bbox_mask).view(-1, 4)
         bbox_weight = torch.masked_select(target_scores.sum(-1), fg_mask).unsqueeze(-1)
-        iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, WIoU=True, scale=True)
-        '''
-        loss_iou = 1.0 - iou
-
-        loss_iou *= bbox_weight
-        loss_iou = loss_iou.sum() / target_scores_sum
-        # loss_iou = loss_iou.mean()
-        '''
+        #iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, CIoU=True)
+        iou = bbox_mpdiou(pred_bboxes_pos, target_bboxes_pos, xywh=False, feat_h=feats[0].shape[2], feat_w=feats[0].shape[3])
         if type(iou) is tuple:
             if len(iou) == 2:
                 loss_iou = ((1.0 - iou[0]) * iou[1].detach() * bbox_weight).sum() / target_scores_sum
@@ -240,7 +234,8 @@ class ComputeLoss:
                                                    target_bboxes,
                                                    target_scores,
                                                    target_scores_sum,
-                                                   fg_mask)
+                                                   fg_mask,
+                                                   feats)
             if type(iou) is tuple:
                 auto_iou = iou[0].mean()
             else:
