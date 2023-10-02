@@ -319,7 +319,7 @@ def bbox_iou(box1, box2, xywh=True, GIoU=False, DIoU=False, CIoU=False, SIoU=Fal
                 distance_cost = 2 - torch.exp(gamma * rho_x) - torch.exp(gamma * rho_y)
                 omiga_w = torch.abs(w1 - w2) / torch.max(w1, w2)
                 omiga_h = torch.abs(h1 - h2) / torch.max(h1, h2)
-                shape_cost = torch.pow(1 - torch.exp(-1 * omiga_w), 4) + torch.pow(1 - torch.exp(-1 * omiga_h), 4)
+                shape_cost = torch.pow(1 - torch.exp(-1 * omiga_w), 2) + torch.pow(1 - torch.exp(-1 * omiga_h), 2)
                 if Focal:
                     return iou - torch.pow(0.5 * (distance_cost + shape_cost) + eps, alpha), torch.pow(inter/(union + eps), gamma) # Focal_SIou
                 else:

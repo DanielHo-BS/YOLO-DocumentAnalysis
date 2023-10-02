@@ -191,12 +191,13 @@ class ComputeLoss:
     def bbox_decode(self, anchor_points, pred_dist):
         if self.use_dfl:
             b, a, c = pred_dist.shape  # batch, anchors, channels
-            pred_dist = pred_dist.view(b, a, 4, c // 4).softmax(3).matmul(self.proj.type(pred_dist.dtype))
+            pred_dist = pred_dist.view(b, a, 4, c // 4).softmax(3).matmul(self.proj.type(pred_dist.dtype).to(self.device))
             # pred_dist = pred_dist.view(b, a, c // 4, 4).transpose(2,3).softmax(3).matmul(self.proj.type(pred_dist.dtype))
             # pred_dist = (pred_dist.view(b, a, c // 4, 4).softmax(2) * self.proj.type(pred_dist.dtype).view(1, 1, -1, 1)).sum(2)
         return dist2bbox(pred_dist, anchor_points, xywh=False)
 
     def __call__(self, p, targets, img=None, epoch=0):
+        iou = torch.zeros(1, device=self.device)
         loss = torch.zeros(3, device=self.device)  # box, cls, dfl
         feats, pred_distri, pred_scores = p
         pred_scores = pred_scores.permute(0, 2, 1).contiguous()
@@ -226,7 +227,7 @@ class ComputeLoss:
         target_bboxes /= stride_tensor
         target_scores_sum = target_scores.sum()
 
-      # bbox loss
+        # bbox loss
         if fg_mask.sum():
             loss[0], loss[2], iou = self.bbox_loss(pred_distri,
                                                    pred_bboxes,
@@ -236,15 +237,21 @@ class ComputeLoss:
                                                    target_scores_sum,
                                                    fg_mask,
                                                    feats)
-            if type(iou) is tuple:
-                auto_iou = iou[0].mean()
-            else:
-                auto_iou = iou.mean()
+        else:
+            bbox_mask = fg_mask.unsqueeze(-1).repeat([1, 1, 4])  # (b, h*w, 4)
+            pred_bboxes_pos = torch.masked_select(pred_bboxes, bbox_mask).view(-1, 4)
+            target_bboxes_pos = torch.masked_select(target_bboxes, bbox_mask).view(-1, 4)
+            iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, SIoU=True)
+            
+        if type(iou) is tuple:
+            auto_iou = iou[0].mean()
+        else:
+            auto_iou = iou.mean()
 
         # cls loss
         # loss[1] = self.varifocal_loss(pred_scores, target_scores, target_labels) / target_scores_sum  # VFL way
         loss[1] = self.BCEcls(pred_scores, target_scores.to(dtype), auto_iou).sum() / target_scores_sum  # BCE
-
+        
   
 
         loss[0] *= 7.5  # box gain

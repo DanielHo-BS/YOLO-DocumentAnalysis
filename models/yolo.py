@@ -493,14 +493,20 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
         if m in {
             Conv, ConvTranspose, GhostConv, Bottleneck, GhostBottleneck, SPP, SPPF, DWConv, MixConv2d, Focus,
             BottleneckCSP, C1, C2, C2x, C3, C3TR, C3SPP, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x, SPPCSPC,
-            RepVGG, RCSOSA
+            RepVGG, RCSOSA,  Conv_ATT,  RepConv,
+            SwinTransformerBlock, STCSPA, STCSPB, STCSPC,
+            SwinTransformer2Block, ST2CSPB
             }:
             c1, c2 = ch[f], args[0]
             if c2 != no:  # if not output
                 c2 = make_divisible(c2 * gw, 8)
 
             args = [c1, c2, *args[1:]]
-            if m in {BottleneckCSP, C1, C2, C2x, C3, C3TR, C3Ghost, C3x, SPPCSPC, RCSOSA}:
+            if m in {
+                BottleneckCSP, C1, C2, C2x, C3, C3TR, C3Ghost, C3x, SPPCSPC, RCSOSA,
+                STCSPA, STCSPB, STCSPC,
+                ST2CSPB
+                }:
                 args.insert(2, n)  # number of repeats
                 n = 1
         elif m is nn.BatchNorm2d:
@@ -536,7 +542,7 @@ def parse_model(d, ch):  # model_dict, input_channels(3)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='./cfg/yolov7_RepVGG.yaml', help='model.yaml')
+    parser.add_argument('--cfg', type=str, default='./cfg/yolov7_SwinV2.yaml', help='model.yaml')
     parser.add_argument('--batch-size', type=int, default=1, help='total batch size for all GPUs')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--profile', action='store_true', help='profile model speed')
