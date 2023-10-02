@@ -36,9 +36,6 @@
 #python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/soft_nms/04_03_01/labels --source runs/soft_nms/04_03_01/ --save-path ./runs/error/04_03_01
 #python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/04_03_01 --save ./runs/out/04_03_01
 
-python detect.py --weights 0627_FC_ND.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val --device 0 --project runs/detect/0627 --name FC_ND_NMS
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/detect/0627/FC_ND_NMS/labels --source runs/detect/0627/FC_ND_NMS/ --save-path ./runs/error/FC_ND_NMS
-python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/FC_ND_NMS --save ./runs/out/FC_ND_NMS
-
-
-python detect.py --weights 0801_old_v8.pt --save-txt --source ./test/dataset/test --device 0
+python detect.py --weights 0918_siou.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val --device 0 --project runs/detect/0918 --name offset
+python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path runs/detect/0918/offset/labels --source runs/detect/0918/offset/ --save-path ./runs/error/offset
+python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/offset --save ./runs/out/offset
