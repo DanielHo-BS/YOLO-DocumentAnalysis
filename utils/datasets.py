@@ -29,6 +29,7 @@ from torchvision.ops import roi_pool, roi_align, ps_roi_pool, ps_roi_align
 from utils.general import check_requirements, xyxy2xywh, xywh2xyxy, xywhn2xyxy, xyn2xy, segment2box, segments2boxes, \
     resample_segments, clean_str
 from utils.torch_utils import torch_distributed_zero_first
+from augraphy import *
 
 # Parameters
 help_url = 'https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data'
@@ -362,7 +363,18 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         self.mosaic = self.augment and not self.rect  # load 4 images at a time into a mosaic (only during training)
         self.mosaic_border = [-img_size // 2, -img_size // 2]
         self.stride = stride
-        self.path = path        
+        self.path = path
+
+        ink_phase = [
+                    DirtyDrum(line_width_range=(1, 2), noise_intensity=0.2, p=0.3), 
+                    InkBleed(p=0.5), InkColorSwap(p=0.5), LowInkPeriodicLines(p=0.5),
+                    ]
+        paper_phase = [ColorPaper(p=0.3)]
+        post_phase = [
+                     Jpeg(p=0.5), Letterpress(p=0.5), 
+                     NoisyLines(p=0.3,noisy_lines_number_range=(2,5))
+                     ]
+        self.pipeline = AugraphyPipeline(ink_phase=ink_phase, paper_phase=paper_phase, post_phase=post_phase) if self.augment else None    
         #self.albumentations = Albumentations() if augment else None
 
         try:
@@ -652,10 +664,9 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                 if nL:
                     labels[:, 1] = 1 - labels[:, 1]
                     
-            if random.random() <  hyp['gauss']:
-                noise = img.copy() 
-                cv2.randn(noise,(0,0,0),(50,50,50))
-                img = cv2.add(img, noise)
+            # augraphy https://github.com/sparkfish/augraphy
+            if random.random() <  hyp['augraphy']:
+                img = self.pipeline(img)  
 
         labels_out = torch.zeros((nL, 6))
         if nL:
