@@ -6,16 +6,25 @@ Implementation of paper - [YOLOv7: Trainable bag-of-freebies sets new state-of-t
 
 ## **Introduction**
 
-Using **``YOLOv7``** for **Document Analysis**.
+Using **``YOLOv7``** for **Document Analysis (Layout)**.
+
+<img src=./images/test1.png width="250" > <img src=./images/prediction1.png width="250" >
+
+<img src=./images/test2.png width="250" > <img src=./images/prediction2.png width="250" >
+
 
 ### [Dataset](https://mailntustedutw-my.sharepoint.com/:u:/g/personal/m11107309_ms_ntust_edu_tw/EbEwBG7yy-pNgnj_ILKRItUBPFeCr4B35VlnMoEpPEVE5w?e=PwPRi7)
 
 * Number of dataset
 
 ```text
-Training: 5018
-Validation: 1157
-Testing: 316
+Without DocLayNet:
+Training set: 7006
+Validation set: 2936
+
+With DocLayNet:
+Training set: 57006
+Validation set: 12936
 ```
 
 * Yaml
@@ -56,9 +65,7 @@ The result will be saved to `./runs/exp`.
 ### Training
 
 ```bash
-python train.py --device 0,1 --batch-size 16 --weights ./yolov7.pt \
---data data/pdf_dataset.yaml  --cfg cfg/training/yolov7.yaml --hyp data/hyp.scratch.p5.Nodegrees.yaml \
---name yolov7  --project runs/0627_FC_NoD
+python train.py --device 0,1 --batch-size 16 --weights ./yolov7.pt
 # --worker: maximum number of dataloader workers
 # --device: cuda device, i.e. 0 or 0,1,2,3 or cpu
 # --batch_size: total batch size for all GPUs
@@ -79,6 +86,7 @@ python train.py --device 0,1 --batch-size 16 --weights ./yolov7.pt \
 * WIoU: 1 - normalized_wasserstein
 * EIoU: iou-(rho2/c2+w_dis/cw2+h_dis/ch2)
 * Focal
+* SIoU
 
 #### Add new loss
 
@@ -138,3 +146,7 @@ python tools/Indicator/indicator_calculator.py
 [Official YOLOv7](https://github.com/WongKinYiu/yolov7)
 
 [Yoloair](https://github.com/iscyy/yoloair)
+
+[DocLayNet](https://github.com/DS4SD/DocLayNet)
+
+[Augraphy](https://github.com/sparkfish/augraphy)
