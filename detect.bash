@@ -8,9 +8,17 @@
 # Drew the result
 #python tools/combin_image.py  --path2 ./runs/error/FIoU_Gaussian --save ./runs/out/GT_FCIoU_Gaussian
 
+# 1030_mixcut
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/1030 --name val
+python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path ./runs/detect/1030/val/labels --source ./runs/detect/1030/val --save-path ./runs/error/1030_mixcut
+python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/1030_mixcut --save ./runs/out/1030_mixcut
 
-
-# CIoU with ca
-python detect.py --weights 1002_CA.pt --save-txt --source ../datasets/old/hand_craft_v10/images/val  --device 0 --project runs/detect/1002 --name ca
-python tools/Indicator/indicator_calculator.py --ground-truth-path ../datasets/old/hand_craft_v10/labels/val --prediction-path ./runs/detect/1002/ca/labels --source ./runs/detect/1002/ca --save-path ./runs/error/1002_ca
-python tools/combin_image.py  --path1 ./runs/GT/val --path2 ./runs/error/1002_ca --save ./runs/out/1002_slide
+# other test data
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/noise_form  --device 0 --project runs/detect/1030 --name noise
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/pdf_image/1  --device 0 --project runs/detect/1030 --name pdf_image_1
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/pdf_image/2  --device 0 --project runs/detect/1030 --name pdf_image_2
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/pdf_image/3  --device 0 --project runs/detect/1030 --name pdf_image_3
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/pdf_image/4  --device 0 --project runs/detect/1030 --name pdf_image_4
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/confuse_text/confuse_text_测试1号私募证券投资基金  --device 0 --project runs/detect/1030 --name confuse_text1
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/confuse_text/confuse_text_测试2号私募证券投资基金  --device 0 --project runs/detect/1030 --name confuse_text2
+python detect.py --weights 1030_mixcut.pt --save-txt --source ../datasets/test/img/form_text/三峡_layout识别为表格  --device 0 --project runs/detect/1030 --name form_text
