@@ -31,5 +31,5 @@ copy_paste: 0.0  # image copy paste (probability)
 paste_in: 0.0  # image copy paste (probability), use 0 for faster training # 1031 0.15 => 0.0
 loss_ota: 1 # use ComputeLossOTA, use 0 for faster training
 custom_augmentation: 1.0  # custom augmentation (probability) #1111 custom augmentation
-augraphy: 0.3 # image = image + noise # 1002 augraphy
+augraphy: 0 # image = image + noise # 1107
 cutout: 0.5 # image cutout (probability) # 17 cutout
