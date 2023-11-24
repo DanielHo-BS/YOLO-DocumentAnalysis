@@ -150,3 +150,5 @@ python tools/Indicator/indicator_calculator.py
 [DocLayNet](https://github.com/DS4SD/DocLayNet)
 
 [Augraphy](https://github.com/sparkfish/augraphy)
+
+[YOLOv8](https://github.com/ultralytics/ultralytics/tree/4ac93d82faf3324d18a233090445e83cfac62ce2)
