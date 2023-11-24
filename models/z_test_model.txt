@@ -1,8 +1,0 @@
-python yolo.py --cfg yolov7.yaml => 415 layer 37M para 73 mb
-python yolo.py --cfg yolov7-PRB.yaml => 1161 layer 102M para 782 mb
-python yolo.py --cfg yolov7x.yaml => 467 layer 71M para 135 mb
-python yolo.py --cfg yolov7-tiny.yaml => 263 layer 6M para 12 mb
-python yolo.py --cfg yolov7-CBAM.yaml
-python yolo.py --cfg yolov7-CBAM-p3-backbone.yaml
-python yolo.py --cfg yolov7-CBAM-p3-neck.yaml
-python yolo.py --cfg yolov7-CBAM-p3-backbone-RFCR.yaml
