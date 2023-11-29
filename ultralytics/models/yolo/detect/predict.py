@@ -22,7 +22,7 @@ class DetectionPredictor(BasePredictor):
 
     def postprocess(self, preds, img, orig_imgs):
         """Post-processes predictions and returns a list of Results objects."""
-        preds = ops.non_max_suppression(preds,
+        preds = ops.non_max_suppression_soft(preds,
                                         self.args.conf,
                                         self.args.iou,
                                         agnostic=self.args.agnostic_nms,

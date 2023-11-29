@@ -3,7 +3,7 @@ from ultralytics import YOLO
 
 def main():
     # Load a pretrained YOLOv8n model
-    model = YOLO("runs/detect/train15/weights/best.pt")
+    model = YOLO("runs/detect/train2/weights/best.pt")
 
     # Source directory
     dir = "../datasets/old/hand_craft_v10/images/val"
